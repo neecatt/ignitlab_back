@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'igniteapp',
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [
@@ -137,10 +138,6 @@ TINYMCE_DEFAULT_CONFIG = {
 }
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
-        'rest_framework.permissions.IsAuthenticated',
-    ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
@@ -150,12 +147,10 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=90),
     "ROTATE_REFRESH_TOKENS": True,
-    "BLACKLIST_AFTER_ROTATION": False,
-    "UPDATE_LAST_LOGIN": False,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": True,
 
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": settings.SECRET_KEY,
-    "VERIFYING_KEY": "",
     "AUDIENCE": None,
     "ISSUER": None,
     "JSON_ENCODER": None,
@@ -185,3 +180,5 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
+
+# AUTH_USER_MODEL = 'igniteapp.CustomUser'

@@ -3,13 +3,14 @@ from rest_framework import serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import *
+from rest_framework.authtoken.models import Token
+
 
 
 class StartupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Startup
         fields = '__all__'
-
 
 """
 @description: This is the serializer for the Investor model
@@ -23,6 +24,11 @@ class InvestorSerializer(serializers.ModelSerializer):
         model = Investor
         fields = '__all__'
 
+class InvestorTokenSerializer(serializers.Serializer):
+    token = serializers.CharField(max_length=255)
+
+    def create(self, validated_data):
+        return Token.objects.create(**validated_data)
 
 class MembersSerializer(serializers.ModelSerializer):
     class Meta:
