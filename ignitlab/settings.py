@@ -151,7 +151,6 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": True,
 
     "ALGORITHM": "HS256",
-    "VERIFYING_KEY": "",
     "AUDIENCE": None,
     "ISSUER": None,
     "JSON_ENCODER": None,
