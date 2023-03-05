@@ -25,7 +25,7 @@ class Stock(models.Model):
     startup = models.ForeignKey(Startup,on_delete=models.CASCADE)
     quantity = models.IntegerField()
     price = models.IntegerField()
-    smart_contract = models.CharField(max_length=100, blank=True)
+    smart_contract = models.CharField(max_length=100,blank=True)
 
     def __str__(self):
         return self.name
