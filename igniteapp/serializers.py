@@ -62,20 +62,6 @@ class StockSerializer(serializers.ModelSerializer):
         return obj.smart_contract
 
 
-class CustomUserSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the CustomUser model.
-    """
-    class Meta:
-        model = CustomUser
-        fields = ('id', 'email', 'password')
-        extra_kwargs = {'password': {'write_only': True, 'required': True}}
-
-    def create(self, validated_data):
-        user = CustomUser.objects.create_user(
-            email=validated_data['email'], password=validated_data['password'])
-        return user
-
 
 class LoginSerializer(serializers.Serializer):
     """

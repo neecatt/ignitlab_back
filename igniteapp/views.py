@@ -31,13 +31,6 @@ class FAQViewSet(viewsets.ModelViewSet):
 
 
 # API view for user registration
-class RegisterView(APIView):
-    def post(self, request):
-        serializer = CustomUserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
-
 
 # API view for user login
 class LoginView(APIView):
