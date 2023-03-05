@@ -1,7 +1,7 @@
 import os
 from django.shortcuts import render
 from .web3_utils import w3
-from contract import CONTRACT_ABI, CONTRACT_ADDRESS
+from .contract import CONTRACT_ABI, CONTRACT_ADDRESS
 
 
 contract = w3.eth.contract(address=CONTRACT_ADDRESS, abi=CONTRACT_ABI)
