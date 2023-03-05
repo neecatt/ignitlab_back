@@ -22,7 +22,8 @@ router.register(r'faq', FAQViewSet)
 """
 urlpatterns = [
     path('', include(router.urls)),
-    path('login/', LoginView.as_view(), name='login'),
+    path('login/', login, name='investor-login'),
+    path('register/', register, name='investor-register'),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
+
 from .models import *
 
 
@@ -27,7 +28,11 @@ class InvestorSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Investor
-        fields = ('id', 'name', 'photo', 'description', 'contact')
+        #exclude password from the response
+        exclude = ('password',)      
+        extra_kwargs = {'photo': {'required': False}, 'amount': {'required': False}}
+    
+
 
 
 class MembersSerializer(serializers.ModelSerializer):
@@ -62,28 +67,20 @@ class StockSerializer(serializers.ModelSerializer):
         return obj.smart_contract
 
 
-
-class LoginSerializer(serializers.Serializer):
-    """
-    Serializer for the login view.
-    """
-    email = serializers.CharField()
+class InvestorTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        data['user_type'] = 'investor'
+        return data
+    
+class InvestorLoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
     password = serializers.CharField()
 
-    def validate(self, data):
-        email = data.get("email")
-        password = data.get("password")
-
-        if email and password:
-            user = authenticate(email=email, password=password)
-            if not user:
-                raise serializers.ValidationError("Invalid Credentials")
-        else:
-            raise serializers.ValidationError(
-                "Please enter email and password")
-
-        refresh = RefreshToken.for_user(user)
-        data['refresh'] = str(refresh)
-        data['access'] = str(refresh.access_token)
-
-        return {'refresh': str(refresh), 'access': str(refresh.access_token)}
+    def validate(self, attrs):
+        investor = Investor.objects.filter(email=attrs['email']).first()
+        if not investor:
+            raise serializers.ValidationError('No such investor')
+        if not investor.check_password(attrs['password']):
+            raise serializers.ValidationError('Incorrect password')
+        return {'email': investor.email, 'user_type': 'investor'}
