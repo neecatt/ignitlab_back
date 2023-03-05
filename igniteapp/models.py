@@ -22,7 +22,7 @@ class Startup(models.Model):
 
 class Stock(models.Model):
     id=models.AutoField(primary_key=True)
-    startup = models.ForeignKey(Startup, on_delete=models.CASCADE)
+    startup = models.ForeignKey(Startup,on_delete=models.CASCADE)
     quantity = models.IntegerField()
     price = models.IntegerField()
     smart_contract = models.CharField(max_length=100, blank=True)
