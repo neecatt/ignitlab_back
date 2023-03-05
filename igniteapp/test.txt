@@ -1,0 +1,110 @@
+from django.db import IntegrityError, models
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager, Group, Permission
+
+
+class CustomUserManager(BaseUserManager):
+    def create_user(self, email, password, **extra_fields):
+        if not email:
+            raise ValueError('You must provide an email address')
+        user = self.model(email=self.normalize_email(email), **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+
+        return user
+
+    def create_superuser(self, email, password, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        return self.create_user(email, password, **extra_fields)
+
+
+class CustomUser(AbstractBaseUser, PermissionsMixin):
+    email = models.EmailField(max_length=255, unique=True)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    objects = CustomUserManager()
+
+    USERNAME_FIELD = 'email'
+
+    groups = models.ManyToManyField(Group, blank=True,
+                                    related_name="custom_users",
+                                    related_query_name="custom_user")
+
+    user_permissions = models.ManyToManyField(Permission, blank=True, related_name="custom_users",
+                                              related_query_name="custom_user")
+
+    def __str__(self):
+        return self.email
+
+    class Meta:
+        db_table = 'custom_user'
+
+
+class CustomGroup(Group):
+    members = models.ManyToManyField(CustomUser, related_name='custom_group')
+
+
+class CustomPermission(Permission):
+    users = models.ManyToManyField(
+        CustomUser, related_name='custom_permissions')
+
+
+class Startup(models.Model):
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    name = models.CharField(max_length=100)
+    photo = models.ImageField(upload_to='photos/%Y/%m/%d/')
+    description = models.TextField()
+    milestones = models.TextField()
+    financials = models.TextField()
+    contact = models.TextField()
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = 'startup'
+
+    def save(self, *args, **kwargs):
+        try:
+            return super(Startup, self).save(*args, **kwargs)
+        except IntegrityError as e:
+            if 'NOT NULL constraint failed: new__startup.owner_id' in str(e):
+                raise ValueError('You must provide an owner for the startup')
+        raise e
+
+
+class Investor(models.Model):
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    name = models.CharField(max_length=100)
+    surname = models.CharField(max_length=100)
+    photo = models.ImageField(upload_to='photos/%Y/%m/%d/')
+    description = models.TextField()
+    experience = models.TextField()
+    amount = models.IntegerField()
+    contact = models.TextField()
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = 'investor'
+
+
+class Member(models.Model):
+    startup = models.ForeignKey(Startup, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    surname = models.CharField(max_length=100)
+    email = models.EmailField()
+
+class FAQ(models.Model):
+    question = models.CharField(max_length=100)
+    answer = models.TextField()
+
+    def __str__(self):
+        return self.question
+
+    class Meta:
+        db_table = 'faq'
